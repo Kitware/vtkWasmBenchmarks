@@ -23,61 +23,61 @@ const benchmarks = ref([
     viewApi: "webgl",
     id: 0,
   },
-  {
-    name: "ConesViewer",
-    previewQuery: {
-      viewApi: 'webgpu',
-      showControls: 'false',
-    },
-    mainQuery: {
-      viewApi: 'webgpu',
-      showControls: 'true',
-    },
-    viewApi: "webgpu",
-    id: 1,
-  },
-  {
-    name: "GeometryViewer",
-    previewQuery: {
-      viewApi: 'webgl',
-      url: 'https://data.kitware.com/api/v1/file/6285865d4acac99f429d979b/download',
-      showControls: 'false',
-      colorByArray: 'Normals',
-      colorMapPreset: 'Warm',
-      backgroundColor1: '0xffffff', // white background in preview
-      backgroundColor2: '0xffffff', // white background in preview
-    },
-    mainQuery: {
-      viewApi: 'webgl',
-      url: 'https://data.kitware.com/api/v1/file/6285865d4acac99f429d979b/download',
-      showControls: 'true',
-      colorByArray: 'Normals',
-      colorMapPreset: 'Warm',
-    },
-    viewApi: "webgl",
-    id: 2,
-  },
-  {
-    name: "GeometryViewer",
-    previewQuery: {
-      viewApi: 'webgpu',
-      url: 'https://data.kitware.com/api/v1/file/6285865d4acac99f429d979b/download',
-      showControls: 'false',
-      colorByArray: 'Normals',
-      colorMapPreset: 'Warm',
-      backgroundColor1: '0xffffff', // white background in preview
-      backgroundColor2: '0xffffff', // white background in preview
-    },
-    mainQuery: {
-      viewApi: 'webgpu',
-      url: 'https://data.kitware.com/api/v1/file/6285865d4acac99f429d979b/download',
-      showControls: 'true',
-      colorByArray: 'Normals',
-      colorMapPreset: 'Warm',
-    },
-    viewApi: "webgpu",
-    id: 3,
-  },
+  // {
+  //   name: "ConesViewer",
+  //   previewQuery: {
+  //     viewApi: 'webgpu',
+  //     showControls: 'false',
+  //   },
+  //   mainQuery: {
+  //     viewApi: 'webgpu',
+  //     showControls: 'true',
+  //   },
+  //   viewApi: "webgpu",
+  //   id: 1,
+  // },
+  // {
+  //   name: "GeometryViewer",
+  //   previewQuery: {
+  //     viewApi: 'webgl',
+  //     url: 'https://data.kitware.com/api/v1/file/6285865d4acac99f429d979b/download',
+  //     showControls: 'false',
+  //     colorByArray: 'Normals',
+  //     colorMapPreset: 'Warm',
+  //     backgroundColor1: '0xffffff', // white background in preview
+  //     backgroundColor2: '0xffffff', // white background in preview
+  //   },
+  //   mainQuery: {
+  //     viewApi: 'webgl',
+  //     url: 'https://data.kitware.com/api/v1/file/6285865d4acac99f429d979b/download',
+  //     showControls: 'true',
+  //     colorByArray: 'Normals',
+  //     colorMapPreset: 'Warm',
+  //   },
+  //   viewApi: "webgl",
+  //   id: 2,
+  // },
+  // {
+  //   name: "GeometryViewer",
+  //   previewQuery: {
+  //     viewApi: 'webgpu',
+  //     url: 'https://data.kitware.com/api/v1/file/6285865d4acac99f429d979b/download',
+  //     showControls: 'false',
+  //     colorByArray: 'Normals',
+  //     colorMapPreset: 'Warm',
+  //     backgroundColor1: '0xffffff', // white background in preview
+  //     backgroundColor2: '0xffffff', // white background in preview
+  //   },
+  //   mainQuery: {
+  //     viewApi: 'webgpu',
+  //     url: 'https://data.kitware.com/api/v1/file/6285865d4acac99f429d979b/download',
+  //     showControls: 'true',
+  //     colorByArray: 'Normals',
+  //     colorMapPreset: 'Warm',
+  //   },
+  //   viewApi: "webgpu",
+  //   id: 3,
+  // },
 ])
 
 </script>

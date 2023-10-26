@@ -1,5 +1,3 @@
-#include "ConesViewer.h"
-
 #include <vtkActor.h>
 #include <vtkCallbackCommand.h>
 #include <vtkCamera.h>
@@ -19,37 +17,60 @@
 #include <vtkRenderer.h>
 #include <vtkRendererCollection.h>
 
+#include <emscripten/emscripten.h>
 #include <iostream>
 
-class ConesViewer::Internal {
-public:
-  vtkNew<vtkRenderWindowInteractor> Interactor;
-  vtkNew<vtkRenderWindow> Window;
-  vtkNew<vtkRenderer> Renderer;
-};
+static vtkSmartPointer<vtkRenderWindowInteractor> Interactor;
+static vtkSmartPointer<vtkRenderWindow> Window;
+static vtkSmartPointer<vtkRenderer> Renderer;
+
+#ifdef __cplusplus
+#define EXTERN extern "C"
+#else
+#define EXTERN
+#endif
 
 //------------------------------------------------------------------------------
-ConesViewer::ConesViewer() {
-  this->P.reset(new Internal());
-  vtkRenderWindowInteractor::InteractorManagesTheEventLoop = false;
+EXTERN EMSCRIPTEN_KEEPALIVE void initialize() {
   std::cout << __func__ << std::endl;
-  this->P->Window->SetWindowName(__func__);
+  ::Interactor = vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  ::Window = vtkSmartPointer<vtkRenderWindow>::New();
+  ::Renderer = vtkSmartPointer<vtkRenderer>::New();
+  // create the default renderer
+  ::Window->SetWindowName("Cones Viewer");
+  ::Window->AddRenderer(::Renderer);
+  ::Window->SetInteractor(::Interactor);
+  // set the current style to TrackBallCamera. Default is joystick
+  if (auto iStyle = vtkInteractorStyle::SafeDownCast(
+          ::Interactor->GetInteractorStyle())) {
+    if (auto switchStyle = vtkInteractorStyleSwitch::SafeDownCast(iStyle)) {
+      switchStyle->SetCurrentStyleToTrackballCamera();
+    }
+  }
+  ::Window->Render();
+  ::Interactor->UpdateSize(300, 300);
+  ::Renderer->GetActiveCamera()->Elevation(30.0);
+  ::Renderer->GetActiveCamera()->Azimuth(-40.0);
+  ::Renderer->GetActiveCamera()->Zoom(3.0);
+  ::Renderer->GetActiveCamera()->Roll(10.0);
+  ::Renderer->SetBackground(1.0, 1.0, 1.0);
+  ::Renderer->ResetCamera();
 }
 
 //------------------------------------------------------------------------------
-ConesViewer::~ConesViewer() {
+EXTERN EMSCRIPTEN_KEEPALIVE void terminate() {
   std::cout << __func__ << std::endl;
-  this->P->Interactor->TerminateApp();
+  ::Interactor->TerminateApp();
 }
 
 //------------------------------------------------------------------------------
-int ConesViewer::CreateDatasets(int nx, int ny, int nz, double dx, double dy,
-                                double dz) {
+EXTERN EMSCRIPTEN_KEEPALIVE int createDatasets(int nx, int ny, int nz, double dx,
+                                        double dy, double dz) {
   std::cout << __func__ << '(' << nx << ',' << ny << ',' << nz << ',' << dx
             << ',' << dy << ',' << dz << ')' << std::endl;
 
   // clear previous actors.
-  this->P->Renderer->RemoveAllViewProps();
+  ::Renderer->RemoveAllViewProps();
 
   // Used for randomized cell colors.
   vtkNew<vtkMinimalStandardRandomSequence> seq;
@@ -89,7 +110,7 @@ int ConesViewer::CreateDatasets(int nx, int ny, int nz, double dx, double dy,
         mapper->Update();
         actor->SetOrigin(x, y, z);
         actor->RotateZ(i * j);
-        this->P->Renderer->AddActor(actor);
+        ::Renderer->AddActor(actor);
         x += dx;
       }
       x = 0.0;
@@ -99,13 +120,13 @@ int ConesViewer::CreateDatasets(int nx, int ny, int nz, double dx, double dy,
     z += dz;
   }
   std::cout << "Created " << nx * ny * nz << " cones" << std::endl;
-  return this->P->Renderer->GetViewProps()->GetNumberOfItems();
+  return ::Renderer->GetViewProps()->GetNumberOfItems();
 }
 
 //------------------------------------------------------------------------------
-void ConesViewer::SetMapperStatic(bool value) {
+EXTERN EMSCRIPTEN_KEEPALIVE void setMapperStatic(bool value) {
   std::cout << __func__ << '(' << value << ')' << std::endl;
-  for (const auto &viewProp : vtk::Range(this->P->Renderer->GetViewProps())) {
+  for (const auto &viewProp : vtk::Range(::Renderer->GetViewProps())) {
     if (auto actor = static_cast<vtkActor *>(viewProp)) {
       actor->GetMapper()->SetStatic(value);
     }
@@ -113,65 +134,38 @@ void ConesViewer::SetMapperStatic(bool value) {
 }
 
 //------------------------------------------------------------------------------
-void ConesViewer::Azimuth(double value) {
-  this->P->Renderer->GetActiveCamera()->Azimuth(value);
-  this->P->Renderer->ResetCameraClippingRange();
+EXTERN EMSCRIPTEN_KEEPALIVE void azimuth(double value) {
+  ::Renderer->GetActiveCamera()->Azimuth(value);
+  ::Renderer->ResetCameraClippingRange();
 }
 
 //------------------------------------------------------------------------------
-void ConesViewer::Initialize() {
+EXTERN EMSCRIPTEN_KEEPALIVE void render() { ::Window->Render(); }
+
+//------------------------------------------------------------------------------
+EXTERN EMSCRIPTEN_KEEPALIVE void resetView() {
   std::cout << __func__ << std::endl;
-  // create the default renderer
-  this->P->Window->AddRenderer(this->P->Renderer);
-  this->P->Window->SetInteractor(this->P->Interactor);
-  // set the current style to TrackBallCamera. Default is joystick
-  if (auto iStyle = vtkInteractorStyle::SafeDownCast(
-          this->P->Interactor->GetInteractorStyle())) {
-    if (auto switchStyle = vtkInteractorStyleSwitch::SafeDownCast(iStyle)) {
-      switchStyle->SetCurrentStyleToTrackballCamera();
-    }
-  }
-}
-
-//------------------------------------------------------------------------------
-void ConesViewer::Render() {
-  this->P->Window->Render();
-}
-
-//------------------------------------------------------------------------------
-void ConesViewer::ResetView() {
-  std::cout << __func__ << std::endl;
-  auto ren = this->P->Window->GetRenderers()->GetFirstRenderer();
+  auto ren = ::Window->GetRenderers()->GetFirstRenderer();
   if (ren != nullptr) {
     ren->ResetCamera();
   }
 }
 
 //------------------------------------------------------------------------------
-int ConesViewer::Run() {
-  std::cout << __func__ << std::endl;
-
-  this->P->Interactor->UpdateSize(300, 300);
-  this->P->Renderer->GetActiveCamera()->Elevation(30.0);
-  this->P->Renderer->GetActiveCamera()->Azimuth(-40.0);
-  this->P->Renderer->GetActiveCamera()->Zoom(3.0);
-  this->P->Renderer->GetActiveCamera()->Roll(10.0);
-  this->P->Renderer->SetBackground(1.0, 1.0, 1.0);
-  this->P->Renderer->ResetCamera();
-  this->P->Window->Render();
-  this->P->Interactor->Start();
-  return 0;
-}
-
-//------------------------------------------------------------------------------
-void ConesViewer::SetMouseWheelMotionFactor(float sensitivity) {
+EXTERN EMSCRIPTEN_KEEPALIVE void setMouseWheelMotionFactor(float sensitivity) {
   std::cout << __func__ << "(" << sensitivity << ")" << std::endl;
   if (auto iStyle = vtkInteractorStyle::SafeDownCast(
-          this->P->Interactor->GetInteractorStyle())) {
+          ::Interactor->GetInteractorStyle())) {
     if (auto switchStyle = vtkInteractorStyleSwitch::SafeDownCast(iStyle)) {
       switchStyle->GetCurrentStyle()->SetMouseWheelMotionFactor(sensitivity);
     } else {
       iStyle->SetMouseWheelMotionFactor(sensitivity);
     }
   }
+}
+
+int main(int argc, char *argv[]) {
+  std::cout << "main" << std::endl;
+  initialize();
+  Interactor->Start();
 }

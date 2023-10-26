@@ -23,4 +23,4 @@ set_property(CACHE OPTIMIZE PROPERTY
 )
 
 add_subdirectory("cpp/ConesViewer")
-add_subdirectory("cpp/GeometryViewer")
+#add_subdirectory("cpp/GeometryViewer")

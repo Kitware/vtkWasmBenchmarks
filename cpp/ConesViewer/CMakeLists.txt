@@ -33,7 +33,6 @@ endif ()
 # -----------------------------------------------------------------------------
 
 add_executable(ConesViewer
-  ConesViewer.h
   ConesViewer.cxx
 )
 
@@ -50,14 +49,18 @@ target_link_libraries(ConesViewer
 # WebAssembly build options
 # -----------------------------------------------------------------------------
 set(emscripten_link_options)
-set(emscripten_compile_options)
+set(emscripten_compile_options "-pthread")
 
 list(APPEND emscripten_link_options
-  "-lembind"
   "-sMODULARIZE=1"
   "-sEXPORT_ES6=1"
+  "-pthread"
+  "-sPROXY_TO_PTHREAD=1"
+  "-sPTHREAD_POOL_SIZE=2"
+  "-sOFFSCREENCANVAS_SUPPORT"
+  "-sOFFSCREEN_FRAMEBUFFER"
   "-sEXPORT_NAME=createConesViewerModule"
-  "-sENVIRONMENT=web"
+  "-sENVIRONMENT=web,worker"
   "-sALLOW_MEMORY_GROWTH=1"
   "-sSINGLE_FILE=1"
   "-sMAXIMUM_MEMORY=4GB"

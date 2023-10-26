@@ -3,11 +3,13 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build-wasm": "npm run build-wasm:release",
+    "build-wasm": "npm run build-wasm-with-developer-vtk:debug",
     "build-wasm:release": "npx itk-wasm -i kitware/vtk-wasm -b out -s . build -- Release -DDEBUGINFO=NONE -DOPTIMIZE=BEST",
     "build-wasm:debug": "npx itk-wasm -i kitware/vtk-wasm -b out -s . build -- Debug -DDEBUGINFO=DEBUG_NATIVE -DOPTIMIZE=NO_OPTIMIZATION",
+    "build-wasm-with-developer-vtk:release": "emcmake cmake -GNinja -S . -B out -DVTK_DIR=/home/local/KHQ/jaswant.panchumarti/Documents/code/ansys/vtk/install/lib/cmake/vtk-9.3 -DDEBUGINFO=NONE -DOPTIMIZE=BEST && cmake --build out",
+    "build-wasm-with-developer-vtk:debug": "emcmake cmake -GNinja -S . -B out -DVTK_DIR=/home/local/KHQ/jaswant.panchumarti/Documents/code/ansys/vtk/install/lib/cmake/vtk-9.3 -DDEBUGINFO=DEBUG_NATIVE -DOPTIMIZE=NO_OPTIMIZATION && cmake --build out",
     "build": "vue-tsc --noEmit && vite build",
-    "dev": "vite --base /",
+    "dev": "vite --cors --base /",
     "lint": "eslint . --fix --ignore-path .gitignore"
   },
   "dependencies": {

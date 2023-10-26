@@ -5,7 +5,7 @@ import { getConfiguration } from "@/utils/wasmConfigure"
 import { hasWebGPU, getDevice } from "@/utils/wasmWebGPUInit";
 
 import type { ConesViewerModule, ConesViewer } from "./ConesViewerFactory";
-import createConesViewerModule from "./ConesViewer"
+import createConesViewerModule from "./ConesViewer.js"
 
 import GUI from "lil-gui"
 import Stats from "stats.js";
@@ -44,15 +44,15 @@ const options = {
 }
 
 function updateDatasets() {
-  viewer.createDatasets(options.nx, options.ny, options.nz, options.dx, options.dy, options.dz);
-  viewer.setMapperStatic(options.mapperIsStatic);
-  viewer.resetView();
-  viewer.render();
+  wasmModule._createDatasets(options.nx, options.ny, options.nz, options.dx, options.dy, options.dz);
+  wasmModule._setMapperStatic(options.mapperIsStatic);
+  wasmModule._resetView();
+  wasmModule._render();
 }
 
 function spinABit() {
-  viewer.azimuth(1);
-  viewer.render();
+  wasmModule._azimuth(1);
+  wasmModule._render();
   animationRequestId = requestAnimationFrame(spinABit)
 }
 
@@ -101,10 +101,10 @@ function setupUI() {
     updateDatasets();
   });
   gui!.add(options, "mapperIsStatic").onChange(() => {
-    viewer.setMapperStatic(options.mapperIsStatic);
+    wasmModule._setMapperStatic(options.mapperIsStatic);
   });
   gui!.add(options, "mouseWheelMotionFactor", 0.0, 1.0).onChange(() => {
-    viewer.setMouseWheelMotionFactor(options.mouseWheelMotionFactor);
+    wasmModule._setMouseWheelMotionFactor(options.mouseWheelMotionFactor);
   });
   gui!.add(options, "animate").onChange(() => {
     updateAnimateState();
@@ -123,21 +123,15 @@ onMounted(async () => {
   }
   let configuration: any = await getConfiguration(props.viewApi, webgpuDevice);
   wasmModule = await createConesViewerModule(configuration);
-  viewer = new wasmModule!.ConesViewer();
-  viewer.initialize();
-  viewer.resetView();
-  viewer.render();
-  updateDatasets()
-  // starts processing events on browser main thread.
-  viewer.run();
+  // updateDatasets();
+  // updateAnimateState();
   // sends a resize event so that the render window fills up browser tab dimensions.
-  setTimeout(() => {
-    window.dispatchEvent(new Event("resize"));
-  }, 0);
+  // setTimeout(() => {
+  //   window.dispatchEvent(new Event("resize"));
+  // }, 0);
   if (props.showControls) {
     setupUI();
   }
-  updateAnimateState();
 });
 
 onUnmounted(async () => {
@@ -151,7 +145,7 @@ onUnmounted(async () => {
     gui.destroy();
   }
   if (viewer !== undefined) {
-    viewer.delete();
+    wasmModule._terminate();
   }
   wasmModule = null;
 });
