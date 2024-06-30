@@ -3,7 +3,10 @@
 set -e
 set -x
 
-sdk_version="v9.3.0-2490-g97c85d6930-20240401"
+# wasm64-threads-v9.3.0-3223-g6e1fa5e1fa-20240604
+# wasm32-v9.3.0-3223-g6e1fa5e1fa-20240604
+sdk_version="wasm32-v9.3.0-3223-g6e1fa5e1fa-20240604"
+#sdk_version="v9.3.0-2490-g97c85d6930-20240401"
 readonly sdk_version
 
 sdk_image="kitware/vtk-wasm-sdk"

@@ -3,6 +3,8 @@
 #include <memory>
 #include <string>
 
+#include "config.h"
+
 class vtkDataSet;
 class GeometryViewer {
 public:
@@ -61,6 +63,8 @@ private:
   std::unique_ptr<Internal> P;
 };
 
+/* function("addListener", &GeometryView::AddListener, return_value_policy::take_ownership) */
+/* allow_raw_pointers() */
 #ifdef __EMSCRIPTEN__
 #include <emscripten/bind.h>
 EMSCRIPTEN_BINDINGS(GeometryViewerJSBindings) {

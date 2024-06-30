@@ -52,6 +52,7 @@
 #include <vtkXMLPolyDataReader.h>
 #include <vtkXMLUnstructuredGridReader.h>
 #include <vtksys/SystemTools.hxx>
+#include <vtkWebAssemblyOpenGLRenderWindow.h>
 
 #include <emscripten.h>
 #include <iostream>
@@ -199,6 +200,11 @@ GeometryViewer::GeometryViewer() {
   this->P = std::unique_ptr<Internal>(new Internal());
   std::cout << __func__ << std::endl;
   this->P->Window->SetWindowName(__func__);
+  auto* p = vtkWebAssemblyOpenGLRenderWindow::SafeDownCast(this->P->Window);
+  if (p) {
+        p->SetCanvasId("#canvas2");
+  }
+  
 }
 
 //------------------------------------------------------------------------------

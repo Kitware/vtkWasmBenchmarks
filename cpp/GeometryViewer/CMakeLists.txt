@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.13)
 project(GeometryViewer)
 
+configure_file(config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
+
 # -----------------------------------------------------------------------------
 # EMSCRIPTEN only
 # -----------------------------------------------------------------------------
@@ -14,20 +16,34 @@ endif ()
 # Handle VTK dependency
 # -----------------------------------------------------------------------------
 
-find_package(VTK
-  COMPONENTS
-    CommonColor
-    FiltersGeometry
-    InteractionStyle
-    InteractionWidgets
-    IOPLY
-    IOGeometry
-    IOXML
-    RenderingOpenGL2
-    RenderingWebGPU
-    RenderingUI
-)
-
+if (ENABLE_WEBGPU)
+  find_package(VTK
+    COMPONENTS
+      CommonColor
+      FiltersGeometry
+      InteractionStyle
+      InteractionWidgets
+      IOPLY
+      IOGeometry
+      IOXML
+      RenderingOpenGL2
+      RenderingWebGPU
+      RenderingUI
+  )
+else()
+  find_package(VTK
+    COMPONENTS
+      CommonColor
+      FiltersGeometry
+      InteractionStyle
+      InteractionWidgets
+      IOPLY
+      IOGeometry
+      IOXML
+      RenderingOpenGL2
+      RenderingUI
+  )
+endif()
 if (NOT VTK_FOUND)
   message("Skipping example: ${VTK_NOT_FOUND_MESSAGE}")
   return ()
@@ -38,6 +54,7 @@ endif ()
 # -----------------------------------------------------------------------------
 
 add_executable(GeometryViewer
+#add_library(GeometryViewer (why it not work)
   GeometryViewer.h
   GeometryViewer.cxx
 )
@@ -46,6 +63,10 @@ target_link_libraries(GeometryViewer
   PRIVATE
     ${VTK_LIBRARIES}
 )
+
+target_include_directories(GeometryViewer
+  PRIVATE
+  ${CMAKE_CURRENT_BINARY_DIR})
 
 # -----------------------------------------------------------------------------
 # WebAssembly build options
@@ -58,12 +79,12 @@ list(APPEND emscripten_link_options
   "-sMODULARIZE=1"
   "-sEXPORT_ES6=1"
   "-sEXPORT_NAME=createGeometryViewerModule"
-  "-sENVIRONMENT=web"
   "-sALLOW_MEMORY_GROWTH=1"
   "-sMAXIMUM_MEMORY=4GB"
   "-sSINGLE_FILE=1"
-  #"--memoryprofiler"
+  "--memoryprofiler"
   #"--cpuprofiler"
+  #"--threadprofiler"
   "-sEXPORTED_FUNCTIONS=['_malloc', '_free']"
   "-sEXPORTED_RUNTIME_METHODS=['ENV', 'UTF8ToString']"
 )
@@ -72,6 +93,20 @@ if (CMAKE_SIZEOF_VOID_P EQUAL 8)
   "-sWASM_BIGINT=1"
   "-sMAXIMUM_MEMORY=16GB")
 endif ()
+
+if (ENABLE_THREADING)
+  list(APPEND emscripten_link_options
+    #"SHELL:-s USE_PTHREADS=1"
+    "-pthread"
+    "-sENVIRONMENT=web,worker"
+    "SHELL:-s PTHREAD_POOL_SIZE=4"
+    "SHELL:-s OFFSCREENCANVAS_SUPPORT=1" # Proxy rendering to main browser thread
+  )
+else()
+  list(APPEND emscripten_link_options
+    "-sENVIRONMENT=web"
+  )
+endif()
 
 set(emscripten_debug_options)
 
@@ -106,6 +141,7 @@ endif()
 # -----------------------------------------------------------------------------
 # Build options
 # -----------------------------------------------------------------------------
+
 set(emscripten_optimizations)
 
 if(OPTIMIZE STREQUAL "NO_OPTIMIZATION")

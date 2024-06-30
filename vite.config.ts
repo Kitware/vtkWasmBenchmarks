@@ -1,6 +1,7 @@
 // Plugins
 import vue from '@vitejs/plugin-vue'
 import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
+//import crossOriginIsolation from 'vite-plugin-cross-origin-isolation'
 
 // Utilities
 import { defineConfig } from 'vite'
@@ -16,6 +17,16 @@ export default defineConfig({
     vuetify({
       autoImport: true,
     }),
+    {
+      name: "configure-response-headers",
+      configureServer: (server) => {
+        server.middlewares.use((_req, res, next) => {
+          res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
+          res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+          next();
+        });
+      },    
+    },
   ],
   define: { 'process.env': {} },
   resolve: {

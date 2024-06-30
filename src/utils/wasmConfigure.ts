@@ -5,7 +5,7 @@ export function getConfiguration(viewAPI: string, webgpuDevice: GPUDevice | null
             const configuration = {
                 // Must be defined as 'canvas' and nothing else. Auto generated glue js expects .canvas to exist.
                 canvas: (function () {
-                    const canvas = <HTMLCanvasElement>document.getElementById('canvas');
+                    const canvas = <HTMLCanvasElement>document.getElementById('canvas2');
                     canvas.oncontextmenu = (event) => { event.preventDefault(); };
                     canvas.onclick = () => { canvas.focus(); }; // grab focus when the render window region receives mouse clicks.
                     canvas.tabIndex = -1;

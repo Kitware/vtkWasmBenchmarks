@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.13)
 project(ConesViewer)
 
+configure_file(config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 # -----------------------------------------------------------------------------
 # EMSCRIPTEN only
 # -----------------------------------------------------------------------------
@@ -14,6 +15,7 @@ endif ()
 # Handle VTK dependency
 # -----------------------------------------------------------------------------
 
+if (ENABLE_WEBGPU)
 find_package(VTK
   COMPONENTS
     FiltersSources      # VTK pipeline
@@ -22,6 +24,15 @@ find_package(VTK
     RenderingWebGPU     # For Rendering with WebGPU
     RenderingUI         # For SDL2 Window
 )
+else()
+find_package(VTK
+  COMPONENTS
+    FiltersSources      # VTK pipeline
+    InteractionStyle    # Mouse handling
+    RenderingOpenGL2    # For Rendering with OpenGL
+    RenderingUI         # For SDL2 Window
+)
+endif()
 
 if (NOT VTK_FOUND)
   message("Skipping example: ${VTK_NOT_FOUND_MESSAGE}")
@@ -37,6 +48,10 @@ add_executable(ConesViewer
   ConesViewer.cxx
 )
 
+target_include_directories(ConesViewer
+  PRIVATE
+  ${CMAKE_CURRENT_BINARY_DIR})
+
 target_link_libraries(ConesViewer
   PRIVATE
     ${VTK_LIBRARIES}
@@ -51,14 +66,32 @@ set(emscripten_compile_options)
 list(APPEND emscripten_link_options
   "-lembind"
   "-sMODULARIZE=1"
+  "-sDISABLE_DEPRECATED_FIND_EVENT_TARGET_BEHAVIOR=1" # Issue if 0  
   "-sEXPORT_ES6=1"
   "-sEXPORT_NAME=createConesViewerModule"
-  "-sENVIRONMENT=web"
   "-sALLOW_MEMORY_GROWTH=1"
-  "-sSINGLE_FILE=1"
   "-sMAXIMUM_MEMORY=4GB"
-  "-sEXPORTED_RUNTIME_METHODS=['ENV']" # ENV holds the environment variables accessible by C getenv
+  "-sSINGLE_FILE=1"
+  "--memoryprofiler"
+  #"--cpuprofiler"
+  #"--threadprofiler"
+  "-sEXPORTED_FUNCTIONS=['_malloc', '_free']" # Required if library
+  "-sEXPORTED_RUNTIME_METHODS=['ENV', 'UTF8ToString']" # UTF8ToString required if library
 )
+
+if (ENABLE_THREADING)
+  list(APPEND emscripten_link_options
+    #    "SHELL:-s USE_PTHREADS=1"
+    "-pthread"
+    "SHELL:-s PTHREAD_POOL_SIZE=4"
+    "SHELL:-s OFFSCREENCANVAS_SUPPORT=1" # Proxy rendering to main browser thread
+    "-sENVIRONMENT=web,worker"
+  )
+else()
+  list(APPEND emscripten_link_options
+    "-sENVIRONMENT=web"
+  )
+endif()
 
 set(emscripten_debug_options)
 if(DEBUGINFO STREQUAL "NONE")

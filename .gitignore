@@ -29,3 +29,6 @@ dev-vtk
 out/
 src/components/ConesViewer/ConesViewer.js
 src/components/GeometryViewer/GeometryViewer.js
+**/*~
+public/vtkWasmBenchmarks
+public/index.html

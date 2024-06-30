@@ -8,7 +8,7 @@ import { Properties } from "./Properties";
 import { getConfiguration } from '../../utils/wasmConfigure'
 import { download } from "../../utils/fileDownload"
 import createGeometryViewerModule from './GeometryViewer'
-import { hasWebGPU, getDevice } from "@/utils/wasmWebGPUInit";
+import { hasWebGPU, getDevice } from "../../utils/wasmWebGPUInit";
 import GUI, { Controller } from 'lil-gui'
 
 let props = withDefaults(defineProps<Properties>(), {
@@ -275,7 +275,7 @@ onMounted(async () => {
   // starts processing events on browser main thread.
   viewer.start();
   /// connect drop events
-  const dropDestination = document.getElementById('canvas') as HTMLElement;
+  const dropDestination = document.getElementById('canvas2') as HTMLElement;
   dropDestination!.addEventListener('dragover', (e: DragEvent) => {
     // prevent default to allow drop
     e.preventDefault();
@@ -339,7 +339,7 @@ onUnmounted(async () => {
   <div style="position: absolute; left: 0; top: 0; width: 100vw; height: 100vh;">
     <div class='canvas_container'>
       <canvas v-if="(supportsWebGPU && viewApi == 'webgpu') || viewApi == 'webgl'"
-        :class="'GeometryViewer' + viewApi + 'Canvas'" id="canvas"></canvas>
+        :class="'GeometryViewer' + viewApi + 'Canvas'" id="canvas2"></canvas>
     </div>
     <div class='tooltip'
       style="-moz-user-select: none; -webkit-user-select: none; -ms-user-select:none; user-select:none;-o-user-select:none;"

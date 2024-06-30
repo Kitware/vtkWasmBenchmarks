@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include "config.h"
 class ConesViewer {
 public:
   ConesViewer();

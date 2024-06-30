@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { onMounted, onUnmounted, ref } from "vue";
 import { Properties } from "./Properties";
-import { getConfiguration } from "@/utils/wasmConfigure"
-import { hasWebGPU, getDevice } from "@/utils/wasmWebGPUInit";
+import { getConfiguration } from "../../utils/wasmConfigure"
+import { hasWebGPU, getDevice } from "../../utils/wasmWebGPUInit";
 
 import type { ConesViewerModule, ConesViewer } from "./ConesViewerFactory";
 import createConesViewerModule from "./ConesViewer"
@@ -162,7 +162,7 @@ onUnmounted(async () => {
   <div style="position: absolute; left: 0; top: 0; width: 100vw; height: 100vh;">
     <div class='canvas_container'>
       <canvas v-show="(supportsWebGPU && viewApi == 'webgpu') || viewApi == 'webgl'"
-        :class="'ConesViewer' + viewApi + 'Canvas'" id="canvas"></canvas>
+        :class="'ConesViewer' + viewApi + 'Canvas'" id="canvas2"></canvas>
     </div>
   </div>
 </template>

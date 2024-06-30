@@ -10,7 +10,7 @@ set_property(CACHE DEBUGINFO PROPERTY
     PROFILE           # -g2
     DEBUG_NATIVE      # -g3
 )
-set(OPTIMIZE "BEST" CACHE STRING "Emscripten optimization")
+set(OPTIMIZE "NO_OPTIMIZATION" CACHE STRING "Emscripten optimization")
 set_property(CACHE OPTIMIZE PROPERTY
   STRINGS
     NO_OPTIMIZATION       # -O0
@@ -21,6 +21,9 @@ set_property(CACHE OPTIMIZE PROPERTY
     SMALLEST              # -Oz
     SMALLEST_WITH_CLOSURE # -Oz --closure 1
 )
+
+option(ENABLE_THREADING "Enable threading" OFF)
+option(ENABLE_WEBGPU "Enable WebGPU" OFF)
 
 add_subdirectory("cpp/ConesViewer")
 add_subdirectory("cpp/GeometryViewer")
